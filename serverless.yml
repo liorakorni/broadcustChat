@@ -1,0 +1,41 @@
+service: posts
+
+provider:
+  name: aws
+  runtime: python3.10
+  memorySize: 128
+
+  ecr:
+    images:
+      $COMMIT_HASH:
+        path: /serverless/source/
+        file: email_generator_lambda/Dockerfile
+        platform: linux/amd64
+
+package:
+  exclude:
+    - test.py
+
+functions:
+  listPosts:
+    handler: handler.list_posts
+    events:
+      - http:
+          path: posts
+          method: get
+
+  getPost:
+    handler: handler.get_post
+    events:
+      - http:
+          path: posts/{id}
+          method: get
+
+  testOpenAi:
+   handler: handler.test_openai
+   events:
+     - http:
+         path: askOpenAI
+         method: get
+plugins:
+  - serverless-python-requirements
